@@ -160,6 +160,7 @@ vim.opt.scrolloff = 10
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+vim.keymap.set('n', '<leader>b', '<cmd>bd<CR>')
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
@@ -318,6 +319,11 @@ require('lazy').setup({
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      {
+        'folke/trouble.nvim',
+        dependencies = { 'nvim-tree/nvim-web-devicons' },
+        opts = {},
+      },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -844,6 +850,18 @@ require('lazy').setup({
   {
     'nvim-lualine/lualine.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
+    opts = {
+      icons_enabled = true,
+      theme = 'gruvbox',
+      tabline = {
+        lualine_a = { 'buffers' },
+        lualine_b = { 'branch' },
+        lualine_c = { 'filename' },
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = { 'tabs' },
+      },
+    },
   },
   {
     'windwp/nvim-autopairs',
@@ -855,6 +873,10 @@ require('lazy').setup({
     'akinsho/toggleterm.nvim',
     version = '*',
     config = true,
+    opts = {
+      open_mapping = [[<c-\>]],
+      direction = 'float',
+    },
   },
   {
     'stevearc/overseer.nvim',
