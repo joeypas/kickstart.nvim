@@ -160,7 +160,7 @@ vim.opt.scrolloff = 10
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
-vim.keymap.set('n', '<leader>b', '<cmd>bd<CR>')
+vim.keymap.set('n', '<leader>d', '<cmd>bd<CR>')
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
@@ -548,7 +548,7 @@ require('lazy').setup({
         clangd = {},
         zls = {},
         -- gopls = {},
-        pyright = {},
+        jedi_language_server = {},
         rust_analyzer = {},
         hls = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
