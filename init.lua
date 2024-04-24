@@ -110,6 +110,9 @@ vim.opt.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
+vim.opt.shiftwidth = 4
+vim.opt.tabstop = 4
+
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
@@ -408,6 +411,7 @@ require('lazy').setup({
 
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
+    opts = { inlay_hints = { enabled = true } },
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       'williamboman/mason.nvim',
@@ -551,6 +555,7 @@ require('lazy').setup({
         jedi_language_server = {},
         rust_analyzer = {},
         hls = {},
+        ocamllsp = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -884,7 +889,47 @@ require('lazy').setup({
   },
   {
     'nvim-tree/nvim-tree.lua',
+    enabled = false,
+  },
+  {
+    'chentoast/marks.nvim',
     opts = {},
+  },
+  {
+    'doctorfree/cheatsheet.nvim',
+    event = 'VeryLazy',
+    dependencies = {
+      { 'nvim-telescope/telescope.nvim' },
+      { 'nvim-lua/popup.nvim' },
+      { 'nvim-lua/plenary.nvim' },
+    },
+    config = function()
+      local ctactions = require 'cheatsheet.telescope.actions'
+      require('cheatsheet').setup {
+        bundled_cheetsheets = {
+          enabled = { 'default', 'lua', 'markdown', 'regex', 'netrw', 'unicode' },
+          disabled = { 'nerd-fonts' },
+        },
+        bundled_plugin_cheatsheets = {
+          enabled = {
+            'auto-session',
+            'goto-preview',
+            'octo.nvim',
+            'telescope.nvim',
+            'vim-easy-align',
+            'vim-sandwich',
+          },
+          disabled = { 'gitsigns' },
+        },
+        include_only_installed_plugins = true,
+        telescope_mappings = {
+          ['<CR>'] = ctactions.select_or_fill_commandline,
+          ['<A-CR>'] = ctactions.select_or_execute,
+          ['<C-Y>'] = ctactions.copy_cheat_value,
+          ['<C-E>'] = ctactions.edit_user_cheatsheet,
+        },
+      }
+    end,
   },
 }, {
   ui = {
