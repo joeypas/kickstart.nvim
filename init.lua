@@ -1,4 +1,4 @@
---[[
+--[[init
 
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
@@ -463,7 +463,7 @@ require('lazy').setup({
           -- to define small helper and utility functions so you don't have to repeat yourself.
           local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client.server_capabilities.inlayHintProvider then
-            vim.lsp.inlay_hint.enable(event.buf, true)
+            vim.lsp.inlay_hint.enable(true)
           end
           -- In this case, we create a function that lets us more easily define mappings specific
           -- for LSP related items. It sets the mode, buffer and description for us each time.
@@ -551,11 +551,10 @@ require('lazy').setup({
       local servers = {
         clangd = {},
         zls = {},
-        -- gopls = {},
+        gopls = {},
         jedi_language_server = {},
         rust_analyzer = {},
-        hls = {},
-        ocamllsp = {},
+
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -575,7 +574,7 @@ require('lazy').setup({
                 callSnippet = 'Replace',
               },
               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
+              diagnostics = { disable = { 'missing-fields' } },
             },
           },
         },
@@ -929,6 +928,31 @@ require('lazy').setup({
           ['<C-E>'] = ctactions.edit_user_cheatsheet,
         },
       }
+    end,
+  },
+  {
+    'scalameta/nvim-metals',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    ft = { 'scala', 'sbt', 'java' },
+    opts = function()
+      local metals_config = require('metals').bare_config()
+      metals_config.on_attach = function(client, bufnr)
+        -- your on_attach function
+      end
+
+      return metals_config
+    end,
+    config = function(self, metals_config)
+      local nvim_metals_group = vim.api.nvim_create_augroup('nvim-metals', { clear = true })
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = self.ft,
+        callback = function()
+          require('metals').initialize_or_attach(metals_config)
+        end,
+        group = nvim_metals_group,
+      })
     end,
   },
 }, {
