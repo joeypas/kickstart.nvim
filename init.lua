@@ -41,6 +41,7 @@ What is Kickstart?
     - :help lua-guide
     - (or HTML version): https://neovim.io/doc/user/lua-guide.html
 
+  { 'ellisonleao/gruvbox.nvim', lazy = false, priority = 1000, config = true, opts = ... },
 Kickstart Guide:
 
   TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
@@ -83,6 +84,8 @@ I hope you enjoy your Neovim journey,
 
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
+local map = vim.keymap.set
+local fn = vim.fn
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
@@ -92,6 +95,8 @@ vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed
 vim.g.have_nerd_font = true
+
+vim.g.zig_recommended_style = false
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -120,6 +125,8 @@ vim.opt.clipboard = 'unnamedplus'
 
 -- Enable break indent
 vim.opt.breakindent = true
+
+vim.opt.cindent = true
 
 -- Save undo history
 vim.opt.undofile = true
@@ -552,7 +559,6 @@ require('lazy').setup({
         clangd = {},
         zls = {},
         gopls = {},
-        jedi_language_server = {},
         rust_analyzer = {},
 
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -619,7 +625,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, zig = true }
         return {
           timeout_ms = 500,
           lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
@@ -747,7 +753,7 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    'ellisonleao/gruvbox.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
@@ -804,7 +810,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc', 'zig' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -814,7 +820,7 @@ require('lazy').setup({
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      indent = { enable = true, disable = { 'ruby', 'zig' } },
     },
     config = function(_, opts)
       -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
@@ -850,7 +856,10 @@ require('lazy').setup({
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
   -- { import = 'custom.plugins' },
-  { 'ellisonleao/gruvbox.nvim', priority = 1000, config = true, opts = ... },
+  {
+    'ziglang/zig.vim',
+    ft = 'zig',
+  },
   {
     'nvim-lualine/lualine.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
@@ -928,31 +937,6 @@ require('lazy').setup({
           ['<C-E>'] = ctactions.edit_user_cheatsheet,
         },
       }
-    end,
-  },
-  {
-    'scalameta/nvim-metals',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-    },
-    ft = { 'scala', 'sbt', 'java' },
-    opts = function()
-      local metals_config = require('metals').bare_config()
-      metals_config.on_attach = function(client, bufnr)
-        -- your on_attach function
-      end
-
-      return metals_config
-    end,
-    config = function(self, metals_config)
-      local nvim_metals_group = vim.api.nvim_create_augroup('nvim-metals', { clear = true })
-      vim.api.nvim_create_autocmd('FileType', {
-        pattern = self.ft,
-        callback = function()
-          require('metals').initialize_or_attach(metals_config)
-        end,
-        group = nvim_metals_group,
-      })
     end,
   },
 }, {
