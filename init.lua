@@ -332,18 +332,6 @@ require('lazy').setup({
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
-      {
-        'folke/trouble.nvim',
-        dependencies = { 'nvim-tree/nvim-web-devicons' },
-        opts = {},
-        cmd = 'Trouble',
-        keys = function()
-          return {
-            { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Diagnostics' },
-            { '<leader>xl', '<cmd>Trouble loclist toggle<cr>', desc = 'Location List' },
-          }
-        end,
-      },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -881,7 +869,7 @@ require('lazy').setup({
       }
       require('r').setup(opts)
     end,
-    lazy = false,
+    ft = { 'R', 'Rmd' },
   },
   {
     'nvim-lualine/lualine.nvim',
@@ -908,26 +896,44 @@ require('lazy').setup({
   {
     'akinsho/toggleterm.nvim',
     version = '*',
+    event = 'VeryLazy',
     config = function()
       require('toggleterm').setup {
         open_mapping = [[<c-\>]],
         direction = 'float',
       }
+      local set_opfunc = vim.fn[vim.api.nvim_exec(
+        [[
+        func s:set_opfunc(val)
+          let &opfunc = a:val
+        endfunc
+        echon get(function('s:set_opfunc'), 'name')
+      ]],
+        true
+      )]
 
-      local wk = require 'which-key'
-
-      wk.add { '<leader>ts', group = '[S]end' }
-      vim.keymap.set('n', '<leader>tsl', '<cmd>ToggleTermSendCurrentLine<cr>', { desc = '[L]ine' })
+      vim.keymap.set('', '\\l', '<cmd>ToggleTermSendCurrentLine<cr>', { desc = 'Send [L]ine' })
       vim.keymap.set('n', '<leader>tv', '<cmd>ToggleTerm size=80 direction=vertical<cr>', { desc = 'Open [V]ertical' })
-      local trim_spaces = true
-      vim.keymap.set('v', 'ts', function()
-        require('toggleterm').send_lines_to_terminal('visual_selection', trim_spaces, { args = vim.v.count })
-      end)
+      vim.keymap.set('v', '\\v', '<cmd>ToggleTermSendVisualLines<cr>', { desc = 'Send [V]isual' })
+      vim.keymap.set('n', '\\m', function()
+        set_opfunc(function(motion_type)
+          require('toggleterm').send_lines_to_terminal(motion_type, false, { args = vim.v.count })
+        end)
+        vim.api.nvim_feedkeys('g@', 'n', false)
+      end, { desc = 'Send [M]otion' })
     end,
   },
   {
-    'nvim-tree/nvim-tree.lua',
-    enabled = false,
+    'folke/trouble.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    opts = {},
+    cmd = 'Trouble',
+    keys = function()
+      return {
+        { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Diagnostics' },
+        { '<leader>xl', '<cmd>Trouble loclist toggle<cr>', desc = 'Location List' },
+      }
+    end,
   },
   {
     'chentoast/marks.nvim',
