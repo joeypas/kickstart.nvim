@@ -16,9 +16,6 @@ local tmpl = {
       components = { { 'on_output_quickfix', open = true }, 'default' },
     }
   end,
-  condition = {
-    filetype = { 'zig' },
-  },
 }
 
 ---@param opts overseer.SearchParams
@@ -28,6 +25,17 @@ local function get_build_file(opts)
 end
 
 return {
+  condition = {
+    callback = function(opts)
+      if vim.fn.executable 'zig' == 0 then
+        return false, 'Command "zig" not found'
+      end
+      if not get_build_file(opts) then
+        return false, 'No build.zig file found'
+      end
+      return true
+    end,
+  },
   generator = function(opts, cb)
     local file = vim.fn.expand '%:p'
     local zig_dir = vim.fs.dirname(assert(get_build_file(opts)))
