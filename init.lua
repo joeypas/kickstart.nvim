@@ -417,7 +417,6 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
     end,
   },
-
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     opts = { inlay_hints = { enabled = true } },
@@ -471,6 +470,11 @@ require('lazy').setup({
           -- NOTE: Remember that Lua is a real programming language, and as such it is possible
           -- to define small helper and utility functions so you don't have to repeat yourself.
           local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+          for _, group in ipairs(vim.fn.getcompletion('@lsp', 'highlight')) do
+            vim.api.nvim_set_hl(0, group, {})
+          end
+
           if client.server_capabilities.inlayHintProvider then
             vim.lsp.inlay_hint.enable(true)
           end
@@ -486,7 +490,7 @@ require('lazy').setup({
           map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           -- Find references for the word under your cursor.
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
@@ -558,8 +562,14 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        clangd = {},
-        zls = {},
+        --clangd = {},
+        zls = {
+          settings = {
+            zls = {
+              zig_exe_path = '/opt/homebrew/Cellar/zigup/2025.01.02/bin/zig',
+            },
+          },
+        },
         jedi_language_server = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -585,6 +595,19 @@ require('lazy').setup({
           },
         },
       }
+
+      --require('lspconfig').jdtls.setup {}
+
+      require('lspconfig').clangd.setup {}
+
+      require('lspconfig').sourcekit.setup {
+        filetypes = { 'swift', 'objective-c', 'objective-cpp' },
+        settings = {
+          inlayHints = { enabled = true },
+        },
+      }
+
+      require('lspconfig').gleam.setup {}
 
       -- Ensure the servers and tools above are installed
       --  To check the current status of installed tools and/or manually install

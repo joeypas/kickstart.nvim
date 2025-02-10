@@ -4,6 +4,63 @@
 -- See the kickstart.nvim README for more information
 return {
   {
+    'mfussenegger/nvim-jdtls',
+    dependencies = 'mfussenegger/nvim-dap',
+    ft = 'java',
+    config = function()
+      local config = {
+        cmd = { '/opt/homebrew/bin/jdtls' },
+        root_dir = vim.fs.root(0, { 'gradlew', '.git', 'mvnw' }),
+      }
+
+      config['init_options'] = {
+        bundles = {
+          vim.fn.glob('/Users/josephliotta/dev/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar', 1),
+        },
+      }
+
+      require('jdtls').start_or_attach(config)
+    end,
+  },
+  {
+    'auto_tex',
+    dir = '~/dev/auto_tex',
+    config = function()
+      require('auto_tex').setup {}
+    end,
+  },
+  {
+    'ldelossa/litee.nvim',
+    event = 'VeryLazy',
+    opts = {
+      notify = { enabled = false },
+      panel = {
+        orientation = 'bottom',
+        panel_size = 10,
+      },
+    },
+    config = function(_, opts)
+      require('litee.lib').setup(opts)
+    end,
+  },
+
+  {
+    'ldelossa/litee-calltree.nvim',
+    dependencies = 'ldelossa/litee.nvim',
+    event = 'VeryLazy',
+    opts = {
+      on_open = 'panel',
+      map_resize_keys = false,
+    },
+    config = function(_, opts)
+      require('litee.calltree').setup(opts)
+    end,
+    keys = {
+      { '<localleader>ti', '<cmd>lua vim.lsp.buf.incoming_calls()<cr>', desc = 'Incomming Calls' },
+      { '<localleader>to', '<cmd>lua vim.lsp.buf.outgoing_calls()<cr>', desc = 'Outgoing Calls' },
+    },
+  },
+  {
     'max397574/better-escape.nvim',
     config = function()
       require('better_escape').setup()
@@ -13,33 +70,22 @@ return {
     'ziglang/zig.vim',
     ft = 'zig',
   },
-  {
-    'R-nvim/R.nvim',
-    config = function()
-      local opts = {
-        rconsole_width = 0,
-        rconsole_height = 25,
-      }
-      require('r').setup(opts)
-    end,
-    ft = { 'R', 'Rmd' },
-  },
-  {
-    'nvim-lualine/lualine.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    opts = {
-      icons_enabled = true,
-      theme = 'gruvbox',
-      tabline = {
-        lualine_a = { 'buffers' },
-        lualine_b = {},
-        lualine_c = {},
-        lualine_x = {},
-        lualine_y = {},
-        lualine_z = { 'tabs' },
-      },
-    },
-  },
+  --{
+  --  'nvim-lualine/lualine.nvim',
+  --  dependencies = { 'nvim-tree/nvim-web-devicons' },
+  --  opts = {
+  --    icons_enabled = true,
+  --    theme = 'gruvbox',
+  --    tabline = {
+  --      lualine_a = { 'buffers' },
+  --      lualine_b = {},
+  --      lualine_c = {},
+  --      lualine_x = {},
+  --      lualine_y = {},
+  --      lualine_z = { 'tabs' },
+  --    },
+  --  },
+  --},
   {
     'windwp/nvim-autopairs',
     event = 'InsertEnter',
@@ -193,7 +239,7 @@ return {
               [']z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
             },
             goto_next_end = {
-              [']f'] = '@function.outer',
+              [']F'] = '@function.outer',
               [']['] = '@class.outer',
             },
             goto_previous_start = {
